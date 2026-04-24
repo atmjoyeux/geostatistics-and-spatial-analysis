@@ -1,9 +1,3 @@
-import geopandas as gpd
-import rasterio
-import pandas as pd
-import numpy as np
-from pathlib import Path
-
 # ============================================================
 # Description:
 # Generate elevation profiles along line geometries by sampling
@@ -19,6 +13,15 @@ from pathlib import Path
 
 # Author: Adele Joyeux
 # Context: PhD research - environmental spatial analysis
+
+# -------------------------
+# Packages
+# -------------------------
+import geopandas as gpd
+import rasterio
+import pandas as pd
+import numpy as np
+from pathlib import Path
 
 # -------------------------
 # PARAMETERS
