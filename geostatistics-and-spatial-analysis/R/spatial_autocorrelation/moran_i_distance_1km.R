@@ -37,8 +37,8 @@ lw <- nb2listw(nb, style = "W")
 
 # ---- 3. Define variables to test ----
 vars <- c(
-  "ALD", "spericity", "LOI", "CACO3",
-  "humidity", "morpho", "Sand", "Silt", "Clay", "Soil"
+  "ALD", "NSP", "LOI", "CACO3",
+  "GSM", "MorphoUnit", "Sand", "Silt", "Clay", "SoilText"
 )
 
 # ---- 4. Initialize results ----
