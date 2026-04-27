@@ -23,7 +23,7 @@
 library(dplyr)
 
 # ---- 1. Define input/output paths ----
-# Use relative paths for GitHub compatibility
+# Use relative paths for GitHub compatibili
 folder_path <- "data/grain_size_csv"
 output_file <- "outputs/granulometry_results.csv"
 
