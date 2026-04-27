@@ -1,35 +1,88 @@
-# Load packages
-library(ggplot2)
+# ============================================================
+# Title: PCA analysis on soil granulometry
+#
+# Description:
+# This script performs a Principal Component Analysis (PCA)
+# to explore variation in soil granulometric composition
+# (sand, silt, clay) and visualize relationships between
+# samples and variables using a biplot.
+#
+# Input:
+# - CSV file containing soil sample data with
+#   granulometric variables and soil type classification
+#
+# Output:
+# - PCA biplot showing:
+#   * samples colored by soil type
+#   * variable vectors (sand, silt, clay)
+#
+# Dependencies:
+# - vegan
+# - ggplot2
+# - readr
+# ============================================================
+
+# ---- 0. Load packages ----
 library(vegan)
+library(ggplot2)
+library(readr)
+library(grid)  # for arrow()
 
-# Load your data
-data <- read.csv("/Users/adelejoyeux/Downloads/CB24/Carte geomorpho 2024-25/coodSoilSamples.csv")
+# ---- 1. Import data ----
+# Use relative path for GitHub compatibility
+data <- read_csv("data/coodSoilSamples.csv")
 
-# Step 1: PCA on the granulometry columns
-pca <- rda(data[, c("sand","silt","clay")], scale = TRUE)  # scale = TRUE standardizes variables
+# ---- 2. Check required columns ----
+required_cols <- c("sand", "silt", "clay", "SoilType")
+stopifnot(all(required_cols %in% names(data)))
 
-# Step 2: Extract PCA scores for samples
+# ---- 3. Run PCA ----
+# scale = TRUE standardizes variables
+pca <- rda(
+  data[, c("sand", "silt", "clay")],
+  scale = TRUE
+)
+
+# ---- 4. Extract scores ----
+# Samples (sites)
 scores_samples <- as.data.frame(scores(pca, display = "sites"))
 scores_samples$SoilType <- data$SoilType
 
-# Step 3: Extract PCA scores for variables
+# Variables (species)
 scores_vars <- as.data.frame(scores(pca, display = "species"))
+scores_vars$Variable <- rownames(scores_vars)
 
-# Step 4: Make the biplot
+# ---- 5. Plot PCA biplot ----
 ggplot() +
   # Samples
-  geom_point(data = scores_samples, aes(x = PC1, y = PC2, color = factor(SoilType)), size = 3) +
+  geom_point(
+    data = scores_samples,
+    aes(x = PC1, y = PC2, color = factor(SoilType)),
+    size = 3
+  ) +
   # Variable arrows
-  geom_segment(data = scores_vars, aes(x = 0, y = 0, xend = PC1*2, yend = PC2*2), 
-               arrow = arrow(length = unit(0.2,"cm")), color = "black") +
+  geom_segment(
+    data = scores_vars,
+    aes(x = 0, y = 0, xend = PC1 * 2, yend = PC2 * 2),
+    arrow = arrow(length = unit(0.2, "cm")),
+    color = "black"
+  ) +
   # Variable labels
-  geom_text(data = scores_vars, aes(x = PC1*2.2, y = PC2*2.2, label = rownames(scores_vars)),
-            color = "black", size = 4) +
+  geom_text(
+    data = scores_vars,
+    aes(x = PC1 * 2.2, y = PC2 * 2.2, label = Variable),
+    color = "black",
+    size = 4
+  ) +
   theme_minimal() +
-  labs(title = "PCA biplot of granulometric composition",
-       color = "Soil Type") +
+  labs(
+    title = "PCA biplot of granulometric composition",
+    color = "Soil Type"
+  ) +
   coord_equal()
 
-# note : Arrows point in the direction each variable increases. The longer the arrow, the more that variable explains variance.
-# Samples near an arrow are high in that variable.
-# SoilType colors help visualize group separation.
+# ---- Notes ----
+# - Arrows indicate the direction of increasing values for each variable.
+# - Longer arrows indicate stronger contribution to variance.
+# - Samples located in the direction of an arrow have higher values for that variable.
+# - SoilType colors help visualize group structure.
