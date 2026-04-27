@@ -56,7 +56,7 @@ for (v in vars) {
   
   # Check for missing values
   if (any(is.na(vec))) {
-    message(paste("Warning:", v, "contains NA values (ignored in analysis)"))
+     message(paste("Warning:", v, "contains NA values (ignored in analysis)"))
   }
   
   # Moran's I test with permutations
