@@ -23,7 +23,7 @@
 library(dplyr)
 
 # ---- 1. Define input/output paths ----
-# Use relative paths for GitHub compatibili
+# Use relative paths for GitHub compatibility
 folder_path <- "data/grain_size_csv"
 output_file <- "outputs/granulometry_results.csv"
 
@@ -192,4 +192,5 @@ print(results)
 # 7. Enregistrement des résultats dans un fichier CSV agrégé -------------------
 # ******************************************************************************
 
-write.csv(results, file = "/Users/adelejoyeux/Downloads/L10_CSV/L10-Granulo-Adele.csv", row.names = FALSE)
+# Use relative paths for GitHub compatibility
+write.csv(results, file = "outputs/granulometry_results.csv", row.names = FALSE)
