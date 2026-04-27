@@ -1,46 +1,94 @@
-#install.packages("sf")
-#install.packages("spdep")
+# ============================================================
+# Title: Moran's I spatial autocorrelation (k-nearest neighbors)
+#
+# Description:
+# This script computes Moran's I statistic to assess spatial
+# autocorrelation for multiple environmental and soil variables
+# using a k-nearest neighbors (k-NN) spatial structure.
+#
+# Input:
+# - Shapefile containing point data with associated variables
+#
+# Output:
+# - Table of Moran's I statistics and p-values
+# - CSV file with results
+#
+# Dependencies:
+# - sf
+# - spdep
+# ============================================================
 
-
+# ---- 0. Load packages ----
 library(sf)
 library(spdep)
 
+# ---- 1. Import spatial data ----
+# Use relative path for GitHub compatibility
+points <- st_read("data/coodSoilSamples.shp")
 
-# loading a local shapefile
-points <- st_read( "/Users/adelejoyeux/Downloads/CB24/Carte geomorpho 2024/coodSoilSamples.shp")
-
-
-# Neighborhood by distance
-#coords <- st_coordinates(points)
-#nb <- dnearneigh(coords, 0, 1000)  # ici 50 km de rayon
-#lw <- nb2listw(nb, style="W")
-
-# k = number of nearest neighbors
-k <- 3  # you can test 3, 5, 10 etc.
-
-# neighbors' construction
+# ---- 2. Create spatial weights (k-nearest neighbors) ----
 coords <- st_coordinates(points)
-knn_nb <- knearneigh(coords, k=3)
-lw <- nb2listw(knn2nb(knn_nb))
 
-# compute Moran I
-#moran.mc(points$ALD, lw, nsim = 999)
+# Number of nearest neighbors (adjust as needed)
+k <- 3
 
+# Build k-NN structure
+knn_nb <- knearneigh(coords, k = k)
+nb <- knn2nb(knn_nb)
 
-# list of variables to test
-vars <- c("ALD", "spericity", "LOI", "CACO3", "humidity", "morpho", "Sand", "Silt", "Clay", "Soil")  # <-- adapte avec tes noms de colonnes
+# Convert to spatial weights
+lw <- nb2listw(nb, style = "W")
 
-# dataframe to store the results
+# ---- 3. Define variables to test ----
+vars <- c(
+  "ALD", "NSP", "LOI", "CACO3",
+  "GSM", "MorphoUnit", "Sand", "Silt", "Clay", "SoilText"
+)
+
+# ---- 4. Initialize results ----
 results <- data.frame()
 
-# loop over each variable
+# ---- 5. Loop through variables ----
 for (v in vars) {
+  
+  # Convert variable to numeric
+  vec <- as.numeric(points[[v]])
+  
+  # Check for missing values
+  if (any(is.na(vec))) {
+    message(paste("Warning:", v, "contains NA values (ignored in analysis)"))
+  }
+  
+  # Moran's I test with permutations
+  mc <- moran.mc(
+    vec,
+    lw,
+    nsim = 9999
+  )
+  
+  # Store results
+  results <- rbind(results, data.frame(
+    Variable = v,
+    Moran_I = as.numeric(mc$statistic),
+    P_value = mc$p.value
+  ))
+}
+
+# ---- 6. Output ----
+print(results)
+
+# Save results to CSV
+write.csv(
+  results,
+  file = "outputs/moran_knn_results.csv",
+  row.names = FALSE
+)for (v in vars) {
   # explicitly convert to numeric
   vec <- as.numeric(points[[v]])
   
   # optional: warn if there are missing values
   if (any(is.na(vec))) {
-    cat("⚠️ Attention :", v, "contient des NA (ils seront ignorés)\n")
+    cat("Attention :", v, " NA (ignored)\n")
   }
   
   # Moran's test with permutation
