@@ -1,8 +1,23 @@
-# =========================================================
-# Mantel test: spatial vs environmental distances
-# Author: [Adele Joyeux]
-# Date: [24 April 2026]
-# =========================================================
+# ============================================================
+# Title: Mantel test on spatial and soil granulometry distances
+#
+# Description:
+# This script performs a Mantel test to assess the correlation
+# between spatial distances (based on coordinates) and
+# environmental distances (based on soil granulometry:
+# sand, silt, clay).
+#
+# Input:
+# - CSV file containing soil sample data with coordinates
+#   and granulometric variables
+#
+# Output:
+# - Mantel test results printed in console
+#
+# Dependencies:
+# - vegan
+# - readr
+# ============================================================
 
 library(vegan)
 library(readr)
