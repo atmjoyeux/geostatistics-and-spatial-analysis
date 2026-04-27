@@ -21,4 +21,4 @@ These scripts were developed as part of research workflows in environmental data
 
 ## Author
 Adele Joyeux
-PhD candidate in environmental sciences, Université de Sherbrooke
+PhD candidate in Geomatics and Earth sciences, Université de Sherbrooke
