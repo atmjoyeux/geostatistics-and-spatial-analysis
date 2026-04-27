@@ -1,37 +1,83 @@
-# Load data
-all_pproxy <- read.csv("/Users/adelejoyeux/Downloads/CB24/GRANULO/al-shape-pies_pour_R3.csv")
+# ============================================================
+# Title: Hierarchical clustering on sediment proxy data
+#
+# Description:
+# This script performs hierarchical clustering on scaled
+# sediment proxy variables using Euclidean distance and
+# average linkage. It produces dendrograms to visualize
+# relationships between samples.
+#
+# Input:
+# - CSV file containing proxy variables
+#
+# Output:
+# - Dendrogram (hierarchical clustering)
+# - Unrooted tree representation
+#
+# Dependencies:
+# - stats (base R)
+# - ape (for phylogenetic tree visualization)
+# ============================================================
 
-# etiqueter les donnees et creer un data frame
-feature_name <- c('GSM','LOI','CaCO3','ALD','NSP','LW','Distribution','sigma_phy_16','Texture')
-colnames(all_pproxy) <- feature_name
+# ---- 0. Load packages ----
+library(ape)
 
-# explore le jeu de donnes
-str(all_pproxy)
-summary(all_pproxy)
-any(is.na(all_pproxy))
+# ---- 1. Import data ----
+# Use relative path for GitHub compatibility
+data <- read.csv("data/al-shape-pies_pour_R3.csv")
 
-# scale the data
-seeds_df_sc <- as.data.frame(scale(all_pproxy))
-summary(seeds_df_sc)
+# ---- 2. Rename columns ----
+feature_names <- c(
+  "GSM", "LOI", "CaCO3", "ALD", "NSP",
+  "LW", "Distribution", "sigma_phy_16", "Texture"
+)
+colnames(data) <- feature_names
 
-# matrice de distance methode euclidienne
-dist_mat <- dist(seeds_df_sc, method = 'euclidean')
+# ---- 3. Explore data ----
+str(data)
+summary(data)
 
-# linkage method = average
-hclust_avg <- hclust(dist_mat, method = 'average')
-plot(hclust_avg, hang = -1, cex = 0.6)
+if (any(is.na(data))) {
+  message("Warning: dataset contains missing values")
+}
 
-# separer les deux clusters obtenus
-cut_avg <- cutree(hclust_avg, k = 5)
+# ---- 4. Scale data ----
+data_scaled <- as.data.frame(scale(data))
 
-# mettre en couleur avec cadres
-#plot(hclust_avg, , hang = -1, cex = 0.6)
-#rect.hclust(hclust_avg , k = 5, border = 2:6)
+# ---- 5. Compute distance matrix ----
+dist_mat <- dist(
+  data_scaled,
+  method = "euclidean"
+)
 
-# autre plot
-plot(as.phylo(hclust_avg), type = "unrooted", cex = 0.6,
-     no.margin = TRUE)
+# ---- 6. Hierarchical clustering ----
+hclust_avg <- hclust(
+  dist_mat,
+  method = "average"
+)
 
+# ---- 7. Plot dendrogram ----
+plot(
+  hclust_avg,
+  hang = -1,
+  cex = 0.6,
+  main = "Hierarchical clustering (average linkage)"
+)
 
+# ---- 8. Cut tree into clusters ----
+clusters <- cutree(
+  hclust_avg,
+  k = 5
+)
 
+# Optional: highlight clusters
+# rect.hclust(hclust_avg, k = 5, border = 2:6)
 
+# ---- 9. Alternative visualization (unrooted tree) ----
+plot(
+  as.phylo(hclust_avg),
+  type = "unrooted",
+  cex = 0.6,
+  no.margin = TRUE,
+  main = "Unrooted tree representation"
+)
